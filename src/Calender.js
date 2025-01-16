@@ -17,8 +17,11 @@ const Calendar = ({ onDateSelect }) => {
 
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
 
-  const [selectedDate, setSelectedDate] = useState(null);
-
+const [selectedDate, setSelectedDate] = useState({
+    year: new Date().getFullYear(),
+    month: new Date().getMonth(),
+    date: new Date().getDate(),
+  });
   const [view, setView] = useState("month");
  
 
