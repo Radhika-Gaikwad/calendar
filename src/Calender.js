@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
+import { FiRefreshCw } from "react-icons/fi";
+
+
 
 const Calendar = ({ onDateSelect }) => {
   
@@ -17,15 +20,37 @@ const Calendar = ({ onDateSelect }) => {
 
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
 
-const [selectedDate, setSelectedDate] = useState({
-    year: new Date().getFullYear(),
-    month: new Date().getMonth(),
-    date: new Date().getDate(),
+  const [selectedDate, setSelectedDate] = useState(() => {
+    const savedDate = JSON.parse(localStorage.getItem("selectedDate"));
+    return savedDate || {
+      year: new Date().getFullYear(),
+      month: new Date().getMonth(),
+      date: new Date().getDate(),
+    };
   });
+  
+  useEffect(() => {
+    localStorage.setItem("selectedDate", JSON.stringify(selectedDate));
+  }, [selectedDate]);
+  
   const [view, setView] = useState("month");
  
 
+  const resetToCurrentDate = () => {
+    const currentDate = {
+      year: new Date().getFullYear(),
+      month: new Date().getMonth(),
+      date: new Date().getDate(),
+    };
+    setSelectedDate(currentDate);
+    setSelectedYear(currentDate.year);
+    setCurrentMonth(currentDate.month);
+    localStorage.setItem("selectedDate", JSON.stringify(currentDate));
 
+    if (onDateSelect) {
+      onDateSelect(currentDate);
+    }
+  };
 
 
   const months = [
@@ -83,7 +108,7 @@ const [selectedDate, setSelectedDate] = useState({
     setSelectedDate(selected);
     setSelectedYear(newYear);
     setCurrentMonth(newMonth);
-   
+    localStorage.setItem("selectedDate", JSON.stringify(selected));
 
 
  
@@ -97,25 +122,19 @@ const [selectedDate, setSelectedDate] = useState({
 
 
 
-  useEffect(() => {
-    const savedDate = JSON.parse(localStorage.getItem("selectedDate"));
-    if (savedDate) {
+useEffect(() => {
+  const savedDate = JSON.parse(localStorage.getItem("selectedDate"));
+  if (savedDate) {
+    setSelectedDate(savedDate);
+    setSelectedYear(savedDate.year);
+    setCurrentMonth(savedDate.month);
+  }
+}, []);
 
-      setSelectedDate(savedDate);
-      setSelectedYear(savedDate.year);
-      setCurrentMonth(savedDate.month);
-    }
-
-   
-  }, []);
   
-
-//save selected date to the local storage
-  useEffect(() => {
-    if (selectedDate) {
-      localStorage.setItem("selectedDate", JSON.stringify(selectedDate));
-    }
-  }, [selectedDate]);
+// useEffect(() => {
+//   localStorage.setItem("selectedDate", JSON.stringify(selectedDate));
+// }, [selectedDate]);;
 
 
 //close year-range popup
@@ -160,22 +179,29 @@ const [selectedDate, setSelectedDate] = useState({
 
   return (
     <div
-      className={`max-w-lg mx-auto border rounded shadow-md transition-all ${
+      className={`sm:max-w-lg sm:mx-auto w-full border rounded shadow-md transition-all ${
         theme === "light" ? "bg-white text-black" : "bg-gray-800 text-white"
       }`}
     >
      
-      <div className="flex items-center justify-between border-b border-gray-300 p-4">
-      <div className="relative flex space-x-4">
+      <div className="flex items-center justify-between border-b border-gray-300 sm:p-4">
+      <div className="relative flex sm:space-x-4 space-x-2">
         <button
           onClick={toggleTheme}
           className={`p-1 rounded-full ${
-            theme === "light" ? "bg-yellow-200" : "bg-gray-500"
+            theme === "light" ? "bg-yellow-200" : "bg-gray-400"
           }`}
         >
           {theme === "light" ? "☀️" : "🌙"}
         </button>
- 
+        
+        <button
+            onClick={resetToCurrentDate}
+            className="flex items-center space-x-2 p-1 border rounded-full bg-gray-100 hover:bg-gray-200 text-black"
+          >
+            <FiRefreshCw className="w-5 h-5 text-blue-500 font-bold" />
+          
+          </button>
 <div className="relative" ref={dropdownRef}>
 <div
               onClick={() => setIsYearDropdownOpen(!isYearDropdownOpen)}
